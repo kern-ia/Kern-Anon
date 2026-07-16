@@ -30,5 +30,6 @@ var macPatterns = []pii.Pattern{
 
 // NewMAC détecte les adresses MAC (MAC_ADDRESS).
 func NewMAC(language string) *recognizer.PatternRecognizer {
-	return mustPattern("MacRecognizer", "MAC_ADDRESS", language, macPatterns)
+	return mustPattern("MacRecognizer", "MAC_ADDRESS", language, macPatterns,
+		recognizer.WithContextWords("mac", "mac address", "hardware address", "physical address", "ethernet"))
 }

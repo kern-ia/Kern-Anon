@@ -22,6 +22,7 @@ var creditCardPattern = pii.Pattern{
 func NewCreditCard(language string) *recognizer.PatternRecognizer {
 	return mustPattern("CreditCardRecognizer", "CREDIT_CARD", language,
 		[]pii.Pattern{creditCardPattern},
+		recognizer.WithContextWords("credit", "card", "visa", "mastercard", "cc ", "amex", "discover", "jcb", "diners", "maestro", "instapayment"),
 		recognizer.WithValidate(func(match string) *bool {
 			sanitized := strings.NewReplacer("-", "", " ", "").Replace(match)
 			ok := !(len(sanitized) == 13 && sanitized[0] == '1') && Luhn(sanitized)
