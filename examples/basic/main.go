@@ -1,31 +1,23 @@
-// Exemple minimal : détection d'emails via PatternRecognizer + Registry.
+// Exemple minimal : détection multi-entités via les recognizers génériques.
 package main
 
 import (
 	"context"
 	"fmt"
-	"regexp"
 
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/presidigo-go/recognizers/generic"
 	"github.com/YoLaub/presidigo-go/registry"
 )
 
 func main() {
-	email, err := recognizer.NewPattern("EmailRecognizer", "EMAIL_ADDRESS", "fr",
-		[]pii.Pattern{{
-			Name:  "email-basic",
-			Regex: regexp.MustCompile(`[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}`),
-			Score: 0.6,
-		}})
-	if err != nil {
-		panic(err)
+	reg := registry.New()
+	for _, rec := range generic.All("fr") {
+		reg.Add(rec)
 	}
 
-	reg := registry.New()
-	reg.Add(email)
+	text := "Prénom : José — email : info@presidio.site, carte 4012-8888-8888-1881, " +
+		"IBAN GB29NWBK60161331926819, IP 192.168.0.1, mais pas 4012-8888-8888-1882."
 
-	text := "Prénom : José — email : info@presidio.site"
 	for _, rec := range reg.Get("fr") {
 		results, err := rec.Analyze(context.Background(), text, nil)
 		if err != nil {
@@ -33,7 +25,7 @@ func main() {
 		}
 		for _, res := range results {
 			extrait := string([]rune(text)[res.Start:res.End])
-			fmt.Printf("%s [%d:%d] score=%.2f → %q\n",
+			fmt.Printf("%-13s [%3d:%3d] score=%.2f → %q\n",
 				res.EntityType, res.Start, res.End, res.Score, extrait)
 		}
 	}
