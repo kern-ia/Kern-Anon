@@ -29,6 +29,7 @@ var ipPatterns = []pii.Pattern{
 // NewIP détecte les adresses IPv4/IPv6 (IP_ADDRESS), validées par netip.
 func NewIP(language string) *recognizer.PatternRecognizer {
 	return mustPattern("IpRecognizer", "IP_ADDRESS", language, ipPatterns,
+		recognizer.WithContextWords("ip", "ipv4", "ipv6"),
 		recognizer.WithValidate(func(match string) *bool {
 			if _, err := netip.ParseAddr(match); err != nil {
 				invalid := false

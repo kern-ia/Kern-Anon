@@ -12,11 +12,12 @@ import (
 // PatternRecognizer détecte une entité via une liste de patterns regex,
 // avec validation optionnelle du match (checksum).
 type PatternRecognizer struct {
-	name     string
-	entity   string
-	language string
-	patterns []pii.Pattern
-	validate ValidateFunc
+	name         string
+	entity       string
+	language     string
+	patterns     []pii.Pattern
+	validate     ValidateFunc
+	contextWords []string
 }
 
 // Option configure un PatternRecognizer.
@@ -25,6 +26,12 @@ type Option func(*PatternRecognizer)
 // WithValidate installe la fonction de validation des matches.
 func WithValidate(f ValidateFunc) Option {
 	return func(r *PatternRecognizer) { r.validate = f }
+}
+
+// WithContextWords déclare les mots de contexte qui augmentent la confiance
+// quand ils apparaissent près de l'entité (exploités par contextaware).
+func WithContextWords(words ...string) Option {
+	return func(r *PatternRecognizer) { r.contextWords = words }
 }
 
 // NewPattern construit un PatternRecognizer. Au moins un pattern est requis.
@@ -47,6 +54,9 @@ func NewPattern(name, entity, language string, patterns []pii.Pattern, opts ...O
 func (r *PatternRecognizer) Name() string                { return r.name }
 func (r *PatternRecognizer) SupportedEntities() []string { return []string{r.entity} }
 func (r *PatternRecognizer) Language() string            { return r.language }
+
+// ContextWords retourne les mots de contexte déclarés (vide si aucun).
+func (r *PatternRecognizer) ContextWords() []string { return r.contextWords }
 
 // Analyze applique chaque pattern au texte et retourne les entités détectées,
 // avec des offsets exprimés en runes.

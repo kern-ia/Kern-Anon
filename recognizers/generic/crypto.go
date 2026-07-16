@@ -22,6 +22,7 @@ var cryptoPattern = pii.Pattern{
 func NewCrypto(language string) *recognizer.PatternRecognizer {
 	return mustPattern("CryptoRecognizer", "CRYPTO", language,
 		[]pii.Pattern{cryptoPattern},
+		recognizer.WithContextWords("wallet", "btc", "bitcoin", "crypto"),
 		recognizer.WithValidate(func(match string) *bool {
 			var ok bool
 			switch {

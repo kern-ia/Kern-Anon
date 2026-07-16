@@ -19,5 +19,6 @@ var emailPattern = pii.Pattern{
 // NewEmail détecte les adresses email (EMAIL_ADDRESS).
 func NewEmail(language string) *recognizer.PatternRecognizer {
 	return mustPattern("EmailRecognizer", "EMAIL_ADDRESS", language,
-		[]pii.Pattern{emailPattern})
+		[]pii.Pattern{emailPattern},
+		recognizer.WithContextWords("email"))
 }

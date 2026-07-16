@@ -20,6 +20,7 @@ var ibanPattern = pii.Pattern{
 func NewIban(language string) *recognizer.PatternRecognizer {
 	return mustPattern("IbanRecognizer", "IBAN_CODE", language,
 		[]pii.Pattern{ibanPattern},
+		recognizer.WithContextWords("iban", "bank", "transaction"),
 		recognizer.WithValidate(func(match string) *bool {
 			ok := IbanMod97(match)
 			return &ok

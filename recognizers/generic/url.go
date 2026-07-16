@@ -27,5 +27,6 @@ var urlPatterns = []pii.Pattern{
 
 // NewURL détecte les URL (URL).
 func NewURL(language string) *recognizer.PatternRecognizer {
-	return mustPattern("UrlRecognizer", "URL", language, urlPatterns)
+	return mustPattern("UrlRecognizer", "URL", language, urlPatterns,
+		recognizer.WithContextWords("url", "website", "link"))
 }
