@@ -1,0 +1,17 @@
+# Binaires et artefacts Go
+*.exe
+*.test
+*.out
+/bin/
+/dist/
+
+# Modèles ONNX (téléchargés, pas versionnés)
+/models/*.onnx
+
+# IDE / OS
+.idea/
+.vscode/
+Thumbs.db
+
+# Env local
+.env
