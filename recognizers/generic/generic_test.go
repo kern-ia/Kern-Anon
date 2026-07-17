@@ -1,92 +1,21 @@
 package generic_test
 
 import (
-	"bufio"
 	"context"
-	"encoding/json"
-	"os"
-	"slices"
 	"testing"
 
+	"github.com/YoLaub/presidigo-go/internal/oracletest"
 	"github.com/YoLaub/presidigo-go/pii"
 	"github.com/YoLaub/presidigo-go/recognizers/generic"
 )
 
-type oracleExpected struct {
-	EntityType string  `json:"entity_type"`
-	Start      int     `json:"start"`
-	End        int     `json:"end"`
-	MinScore   float64 `json:"min_score"`
-}
-
-type oracleCase struct {
-	ID       string           `json:"id"`
-	Text     string           `json:"text"`
-	Expected []oracleExpected `json:"expected"`
-	Forbid   []string         `json:"forbid"`
-}
-
-func loadOracle(t *testing.T) []oracleCase {
-	t.Helper()
-	f, err := os.Open("../../internal/testdata/oracle.jsonl")
-	if err != nil {
-		t.Fatalf("ouverture oracle.jsonl : %v", err)
-	}
-	defer f.Close()
-
-	var cases []oracleCase
-	sc := bufio.NewScanner(f)
-	for sc.Scan() {
-		if len(sc.Bytes()) == 0 {
-			continue
-		}
-		var c oracleCase
-		if err := json.Unmarshal(sc.Bytes(), &c); err != nil {
-			t.Fatalf("ligne oracle invalide : %v", err)
-		}
-		cases = append(cases, c)
-	}
-	return cases
-}
-
-// TestOracle exécute tous les recognizers génériques sur chaque cas du corpus
-// oracle : les entités attendues doivent être trouvées aux offsets runes exacts
-// avec un score suffisant ; les entités interdites ne doivent pas apparaître.
+// TestOracle exécute les recognizers génériques sur le corpus oracle partagé.
 func TestOracle(t *testing.T) {
 	recognizers := generic.All("en")
 	if len(recognizers) < 7 {
 		t.Fatalf("generic.All doit fournir au moins 7 recognizers, obtenu %d", len(recognizers))
 	}
-
-	for _, c := range loadOracle(t) {
-		t.Run(c.ID, func(t *testing.T) {
-			var found []pii.Result
-			for _, rec := range recognizers {
-				results, err := rec.Analyze(context.Background(), c.Text, nil)
-				if err != nil {
-					t.Fatalf("%s : %v", rec.Name(), err)
-				}
-				found = append(found, results...)
-			}
-			for _, exp := range c.Expected {
-				if !slices.ContainsFunc(found, func(r pii.Result) bool {
-					return r.EntityType == exp.EntityType &&
-						r.Start == exp.Start && r.End == exp.End &&
-						r.Score >= exp.MinScore
-				}) {
-					t.Errorf("attendu %s [%d:%d] score>=%.2f — trouvé : %+v",
-						exp.EntityType, exp.Start, exp.End, exp.MinScore, found)
-				}
-			}
-			for _, forbidden := range c.Forbid {
-				for _, r := range found {
-					if r.EntityType == forbidden {
-						t.Errorf("entité interdite %s détectée : %+v", forbidden, r)
-					}
-				}
-			}
-		})
-	}
+	oracletest.Run(t, recognizers)
 }
 
 func TestLuhn(t *testing.T) {
