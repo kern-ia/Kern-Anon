@@ -51,9 +51,14 @@ func NewPattern(name, entity, language string, patterns []pii.Pattern, opts ...O
 	return r, nil
 }
 
-func (r *PatternRecognizer) Name() string                { return r.name }
+// Name retourne le nom du recognizer.
+func (r *PatternRecognizer) Name() string { return r.name }
+
+// SupportedEntities retourne l'entité détectée par ce recognizer.
 func (r *PatternRecognizer) SupportedEntities() []string { return []string{r.entity} }
-func (r *PatternRecognizer) Language() string            { return r.language }
+
+// Language retourne la langue supportée.
+func (r *PatternRecognizer) Language() string { return r.language }
 
 // ContextWords retourne les mots de contexte déclarés (vide si aucun).
 func (r *PatternRecognizer) ContextWords() []string { return r.contextWords }

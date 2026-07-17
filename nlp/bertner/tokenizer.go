@@ -58,8 +58,9 @@ func (t *Tokenizer) ID(token string) int {
 
 // Tokenize découpe le texte en tokens WordPiece avec offsets en runes.
 func (t *Tokenizer) Tokenize(text string) []Token {
-	var tokens []Token
-	for _, w := range basicSplit(text) {
+	words := basicSplit(text)
+	tokens := make([]Token, 0, len(words))
+	for _, w := range words {
 		tokens = append(tokens, t.wordpiece(w)...)
 	}
 	return tokens
