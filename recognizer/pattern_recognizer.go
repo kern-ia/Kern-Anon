@@ -3,7 +3,7 @@ package recognizer
 import (
 	"context"
 	"errors"
-	"unicode/utf8"
+	"sort"
 
 	"github.com/YoLaub/presidigo-go/nlp"
 	"github.com/YoLaub/presidigo-go/pii"
@@ -59,13 +59,21 @@ func (r *PatternRecognizer) Language() string            { return r.language }
 func (r *PatternRecognizer) ContextWords() []string { return r.contextWords }
 
 // Analyze applique chaque pattern au texte et retourne les entités détectées,
-// avec des offsets exprimés en runes.
+// avec des offsets exprimés en runes. La conversion bytes→runes se fait en
+// une seule passe sur le texte, quel que soit le nombre de matches.
 func (r *PatternRecognizer) Analyze(_ context.Context, text string, _ *nlp.Artifacts) ([]pii.Result, error) {
 	if text == "" {
 		return nil, nil
 	}
-	var results []pii.Result
-	for _, p := range r.patterns {
+	type rawMatch struct {
+		pattern *pii.Pattern
+		score   float64
+		b0, b1  int // offsets en bytes
+	}
+	var raws []rawMatch
+	var offsets []int
+	for i := range r.patterns {
+		p := &r.patterns[i]
 		for _, loc := range p.Regex.FindAllStringIndex(text, -1) {
 			score := p.Score
 			if r.validate != nil {
@@ -78,20 +86,54 @@ func (r *PatternRecognizer) Analyze(_ context.Context, text string, _ *nlp.Artif
 					continue
 				}
 			}
-			start := utf8.RuneCountInString(text[:loc[0]])
-			end := start + utf8.RuneCountInString(text[loc[0]:loc[1]])
-			results = append(results, pii.Result{
-				EntityType: r.entity,
-				Start:      start,
-				End:        end,
-				Score:      score,
-				Explanation: &pii.Explanation{
-					Recognizer:    r.name,
-					Pattern:       p.Name,
-					OriginalScore: p.Score,
-				},
-			})
+			raws = append(raws, rawMatch{p, score, loc[0], loc[1]})
+			offsets = append(offsets, loc[0], loc[1])
 		}
 	}
+	if len(raws) == 0 {
+		return nil, nil
+	}
+
+	runeOf := runeOffsets(text, offsets)
+	results := make([]pii.Result, 0, len(raws))
+	for _, m := range raws {
+		results = append(results, pii.Result{
+			EntityType: r.entity,
+			Start:      runeOf[m.b0],
+			End:        runeOf[m.b1],
+			Score:      m.score,
+			Explanation: &pii.Explanation{
+				Recognizer:    r.name,
+				Pattern:       m.pattern.Name,
+				OriginalScore: m.pattern.Score,
+			},
+		})
+	}
 	return results, nil
+}
+
+// runeOffsets convertit des offsets en bytes (frontières de runes, ce que
+// garantit le moteur regex) en offsets en runes, en une passe sur le texte.
+func runeOffsets(text string, offsets []int) map[int]int {
+	sorted := make([]int, len(offsets))
+	copy(sorted, offsets)
+	sort.Ints(sorted)
+
+	out := make(map[int]int, len(sorted))
+	j, runeCount := 0, 0
+	for byteIdx := range text {
+		for j < len(sorted) && sorted[j] <= byteIdx {
+			out[sorted[j]] = runeCount
+			j++
+		}
+		if j == len(sorted) {
+			return out
+		}
+		runeCount++
+	}
+	for j < len(sorted) { // offsets en fin de texte (== len(text))
+		out[sorted[j]] = runeCount
+		j++
+	}
+	return out
 }
