@@ -1,5 +1,14 @@
 # Rétro continue — presidigo-go
 
+## 2026-07-17 — Rétro v0.2.0 (performance)
+**Leçon majeure** : le benchmark baseline a invalidé l'intuition — le goulot
+n'était pas la séquentialité des recognizers mais la fenêtre contextuelle
+(O(résultats × texte)) : 550 ms et 534 Mo alloués sur 30 Ko. Toujours mesurer
+AVANT d'optimiser. Gains livrés : recognizer ×10,6 (offsets runes en une
+passe), pipeline ×41 (fenêtre bornée + fan-out), NER fenêtré 256/64 en
+parallèle (textes longs enfin couverts, labels meilleurs qu'en 512).
+Harness Go/Python : toujours 100 %.
+
 ## 2026-07-17 — Rétro finale v0.1.0
 **Ce qui a marché** : le corpus oracle (tests Python → jsonl partagé) a porté
 tout le TDD ; l'extraction AST/sed des patterns Python a évité les typos ; le
