@@ -57,6 +57,19 @@ func TestRegistry_Remove(t *testing.T) {
 	}
 }
 
+func TestDefault_PreRempliParLangue(t *testing.T) {
+	reg := registry.Default("en", "fr")
+	if got := len(reg.Get("en")); got != 16 { // 7 génériques + 9 US
+		t.Errorf("Get(en) = %d recognizers, attendu 16", got)
+	}
+	if got := len(reg.Get("fr")); got != 12 { // 7 génériques + 5 FR
+		t.Errorf("Get(fr) = %d recognizers, attendu 12", got)
+	}
+	if got := reg.Get("de"); len(got) != 0 {
+		t.Errorf("Get(de) = %d, attendu 0 (langue non demandée)", len(got))
+	}
+}
+
 func TestRegistry_SupportedEntities(t *testing.T) {
 	reg := registry.New()
 	reg.Add(fake(t, "EmailEN", "EMAIL_ADDRESS", "en"))

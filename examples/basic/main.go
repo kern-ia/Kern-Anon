@@ -7,18 +7,12 @@ import (
 
 	"github.com/YoLaub/presidigo-go/analyzer"
 	"github.com/YoLaub/presidigo-go/anonymizer"
-	"github.com/YoLaub/presidigo-go/recognizers/generic"
 	"github.com/YoLaub/presidigo-go/registry"
 )
 
 func main() {
-	reg := registry.New()
-	for _, rec := range generic.All("fr") {
-		reg.Add(rec)
-	}
-
 	eng, err := analyzer.New(
-		analyzer.WithRegistry(reg),
+		analyzer.WithRegistry(registry.Default("fr")),
 		analyzer.WithDefaultLanguage("fr"),
 	)
 	if err != nil {
