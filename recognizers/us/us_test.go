@@ -3,8 +3,8 @@ package us_test
 import (
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/internal/oracletest"
-	"github.com/YoLaub/presidigo-go/recognizers/us"
+	"github.com/YoLaub/PresidioGo/internal/oracletest"
+	"github.com/YoLaub/PresidioGo/recognizers/us"
 )
 
 func TestOracle(t *testing.T) {

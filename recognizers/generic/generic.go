@@ -8,8 +8,8 @@
 package generic
 
 import (
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
 )
 
 // All retourne les recognizers génériques pour la langue donnée.

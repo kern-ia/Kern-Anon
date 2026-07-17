@@ -1,4 +1,4 @@
-module github.com/YoLaub/presidigo-go
+module github.com/YoLaub/PresidioGo
 
 go 1.26
 

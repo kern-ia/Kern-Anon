@@ -6,7 +6,7 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/PresidioGo/recognizer"
 )
 
 // Registry contient les recognizers enregistrés. Sûr pour un usage concurrent.

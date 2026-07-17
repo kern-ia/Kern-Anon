@@ -4,7 +4,7 @@
 ## 1. Contexte & objectif
 
 Porter le cœur de Presidio (détection + anonymisation de PII dans du **texte**) en Go,
-sous forme de **bibliothèque importable** (`go get github.com/YoLaub/presidigo-go`),
+sous forme de **bibliothèque importable** (`go get github.com/YoLaub/PresidioGo`),
 destinée à devenir un module in-process d'un projet Go existant.
 
 Motivation validée : supprimer le sidecar Python (~500 Mo-1 Go RAM avec spaCy) et
@@ -20,7 +20,7 @@ Le périmètre fonctionnel de référence est `presidigo/archi-output/INDEX.md`.
 | Périmètre v1 | Texte seul : analyzer + anonymizer (pas d'image/DICOM, pas de structured) |
 | NER | ONNX embarqué (bert-base-NER converti ONNX, via onnxruntime/cgo) derrière une interface pluggable |
 | Emplacement | Nouveau repo : `c:\Users\laube\WebstormProjects\presidigo-go` |
-| Module Go | `github.com/YoLaub/presidigo-go` |
+| Module Go | `github.com/YoLaub/PresidioGo` |
 | API | Go idiomatique (PAS de compatibilité REST Presidio) |
 | Locales v1 | Génériques → USA (portage) → France (création) → UE par vagues |
 

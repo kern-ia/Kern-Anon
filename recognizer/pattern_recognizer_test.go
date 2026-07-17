@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
 )
 
 func emailRecognizer(t *testing.T, opts ...recognizer.Option) *recognizer.PatternRecognizer {

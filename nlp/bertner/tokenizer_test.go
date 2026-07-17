@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/nlp/bertner"
+	"github.com/YoLaub/PresidioGo/nlp/bertner"
 )
 
 // Petit vocabulaire de test : suffisant pour vérifier la mécanique WordPiece

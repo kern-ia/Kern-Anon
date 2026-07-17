@@ -3,8 +3,8 @@ package generic
 import (
 	"regexp"
 
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
 )
 
 // Le pattern Python utilise une backreference \1 pour interdire les

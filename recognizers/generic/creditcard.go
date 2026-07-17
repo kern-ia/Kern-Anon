@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
 )
 
 // La regex Python commence par le lookahead négatif (?!1\d{12}(?!\d))

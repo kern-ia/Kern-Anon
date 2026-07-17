@@ -11,11 +11,11 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/YoLaub/presidigo-go/contextaware"
-	"github.com/YoLaub/presidigo-go/nlp"
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
-	"github.com/YoLaub/presidigo-go/registry"
+	"github.com/YoLaub/PresidioGo/contextaware"
+	"github.com/YoLaub/PresidioGo/nlp"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
+	"github.com/YoLaub/PresidioGo/registry"
 )
 
 // Engine est le moteur d'analyse.
