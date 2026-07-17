@@ -131,6 +131,23 @@ func TestAggregate_BIOVersEntites(t *testing.T) {
 	}
 }
 
+func TestAggregate_EtendJusquAuBoutDuMot(t *testing.T) {
+	// Le modèle étiquette parfois O le dernier sous-mot d'un nom : l'entité
+	// doit quand même couvrir le mot entier (jamais de coupure intra-mot).
+	tok := newTok(t)
+	tokens := tok.Tokenize("Johnson")
+	if len(tokens) != 2 {
+		t.Fatalf("attendu [john ##son], obtenu %+v", tokens)
+	}
+	entities := bertner.Aggregate(tokens, []bertner.TokenLabel{
+		{Label: "B-PER", Score: 0.95},
+		{Label: "O", Score: 0.99}, // ##son étiqueté O par le modèle
+	})
+	if len(entities) != 1 || entities[0].End != 7 {
+		t.Fatalf("l'entité doit couvrir tout « Johnson » [0:7], obtenu %+v", entities)
+	}
+}
+
 func TestAggregate_IOrphelinDemarreEntite(t *testing.T) {
 	// Un I-X sans B-X précédent démarre quand même une entité (robustesse).
 	tok := newTok(t)

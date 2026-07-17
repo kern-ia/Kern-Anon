@@ -24,16 +24,26 @@ import (
 	"github.com/YoLaub/presidigo-go/nlp/bertner"
 )
 
-// maxSeqLen est la longueur maximale de séquence BERT ([CLS] + tokens + [SEP]).
-const maxSeqLen = 512
+// windowSize est la taille de fenêtre d'inférence (tokens, hors [CLS]/[SEP]).
+// 256 plutôt que le maximum BERT (512) : les positions hautes sont moins
+// bien entraînées (labels dégradés en fin de séquence) et l'attention étant
+// en O(n²), deux fenêtres de 256 coûtent moins qu'une de 512.
+const windowSize = 254
 
-// Engine exécute un modèle BERT-NER ONNX. Sûr pour un usage concurrent
-// (la session onnxruntime est verrouillée par mutex).
+// windowOverlap est le chevauchement (en tokens) entre fenêtres sur les
+// textes longs : une entité coupée en bord de fenêtre est entière dans la
+// suivante tant qu'elle fait moins de windowOverlap tokens.
+const windowOverlap = 64
+
+// Engine exécute un modèle BERT-NER ONNX. Sûr pour un usage concurrent :
+// les sessions onnxruntime sont thread-safe pour Run, le RWMutex ne protège
+// que le cycle de vie (Load/Destroy) — les inférences s'exécutent en
+// parallèle sous verrou de lecture.
 type Engine struct {
 	modelDir string
 	libPath  string
 
-	mu      sync.Mutex
+	mu      sync.RWMutex
 	loaded  bool
 	tok     *bertner.Tokenizer
 	session *ort.DynamicAdvancedSession
@@ -105,8 +115,10 @@ func (e *Engine) Load() error {
 	return nil
 }
 
-// Process tokenise le texte, exécute le modèle et agrège les labels BIO
-// en entités NER (offsets en runes).
+// Process tokenise le texte, exécute le modèle sur des fenêtres
+// chevauchantes (textes longs) — en parallèle, les sessions onnxruntime
+// étant thread-safe pour Run — puis agrège les labels BIO en entités NER
+// (offsets en runes).
 func (e *Engine) Process(_ context.Context, text, _ string) (*nlp.Artifacts, error) {
 	if err := e.Load(); err != nil {
 		return nil, err
@@ -115,10 +127,43 @@ func (e *Engine) Process(_ context.Context, text, _ string) (*nlp.Artifacts, err
 	if len(tokens) == 0 {
 		return &nlp.Artifacts{}, nil
 	}
-	if len(tokens) > maxSeqLen-2 {
-		tokens = tokens[:maxSeqLen-2]
-	}
 
+	windows := bertner.Windows(tokens, windowSize, windowSize-windowOverlap)
+	perWin := make([][]bertner.Entity, len(windows))
+	errs := make([]error, len(windows))
+	var wg sync.WaitGroup
+	for w, win := range windows {
+		wg.Add(1)
+		go func(w int, win []bertner.Token) {
+			defer wg.Done()
+			perWin[w], errs[w] = e.processWindow(win)
+		}(w, win)
+	}
+	wg.Wait()
+
+	var all []bertner.Entity
+	for w := range windows {
+		if errs[w] != nil {
+			return nil, errs[w]
+		}
+		all = append(all, perWin[w]...)
+	}
+	entities := bertner.MergeEntities(all)
+
+	artifacts := &nlp.Artifacts{}
+	for _, t := range tokens {
+		artifacts.Tokens = append(artifacts.Tokens, t.Text)
+	}
+	for _, ent := range entities {
+		artifacts.NerEntities = append(artifacts.NerEntities, nlp.NerEntity{
+			Label: ent.Label, Start: ent.Start, End: ent.End, Score: ent.Score,
+		})
+	}
+	return artifacts, nil
+}
+
+// processWindow exécute le modèle sur une fenêtre de tokens.
+func (e *Engine) processWindow(tokens []bertner.Token) ([]bertner.Entity, error) {
 	seq := len(tokens) + 2
 	ids := make([]int64, seq)
 	mask := make([]int64, seq)
@@ -147,23 +192,15 @@ func (e *Engine) Process(_ context.Context, text, _ string) (*nlp.Artifacts, err
 			labels[i] = bertner.TokenLabel{Label: e.labels[idx], Score: score}
 		}
 	}
-
-	entities := bertner.Aggregate(tokens, labels)
-	artifacts := &nlp.Artifacts{}
-	for _, t := range tokens {
-		artifacts.Tokens = append(artifacts.Tokens, t.Text)
-	}
-	for _, ent := range entities {
-		artifacts.NerEntities = append(artifacts.NerEntities, nlp.NerEntity{
-			Label: ent.Label, Start: ent.Start, End: ent.End, Score: ent.Score,
-		})
-	}
-	return artifacts, nil
+	return bertner.Aggregate(tokens, labels), nil
 }
 
 func (e *Engine) run(ids, mask, types []int64) ([]float32, []int64, error) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	if e.session == nil {
+		return nil, nil, fmt.Errorf("onnx: session détruite")
+	}
 
 	seq := int64(len(ids))
 	shape := ort.NewShape(1, seq)

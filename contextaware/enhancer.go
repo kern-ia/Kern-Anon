@@ -93,33 +93,65 @@ func (e *Enhancer) Enhance(text string, results []pii.Result, recognizers []reco
 }
 
 // window retourne, en minuscules, les prefixCount mots avant l'entité et les
-// suffixCount mots après (offsets en runes).
+// suffixCount mots après (offsets en runes). Le balayage est borné au
+// voisinage de l'entité — jamais tout le préfixe du texte.
 func (e *Enhancer) window(runes []rune, start, end int) string {
-	before := lastWords(string(runes[:max(start, 0)]), e.prefixCount)
-	after := firstWords(string(runes[min(end, len(runes)):]), e.suffixCount)
+	before := wordsBackward(runes, min(max(start, 0), len(runes)), e.prefixCount)
+	after := wordsForward(runes, min(max(end, 0), len(runes)), e.suffixCount)
 	return strings.ToLower(strings.Join(append(before, after...), " "))
 }
 
-func splitWords(s string) []string {
-	return strings.FieldsFunc(s, func(r rune) bool {
-		return !unicode.IsLetter(r) && !unicode.IsDigit(r)
-	})
+func isWordRune(r rune) bool {
+	return unicode.IsLetter(r) || unicode.IsDigit(r)
 }
 
-func lastWords(s string, n int) []string {
-	w := splitWords(s)
-	if len(w) > n {
-		w = w[len(w)-n:]
+// wordsBackward collecte jusqu'à n mots en remontant depuis from (exclu),
+// dans l'ordre du texte.
+func wordsBackward(runes []rune, from, n int) []string {
+	if n <= 0 {
+		return nil
 	}
-	return w
+	words := make([]string, 0, n)
+	i := from - 1
+	for i >= 0 && len(words) < n {
+		for i >= 0 && !isWordRune(runes[i]) {
+			i--
+		}
+		if i < 0 {
+			break
+		}
+		end := i + 1
+		for i >= 0 && isWordRune(runes[i]) {
+			i--
+		}
+		words = append(words, string(runes[i+1:end]))
+	}
+	for l, r := 0, len(words)-1; l < r; l, r = l+1, r-1 {
+		words[l], words[r] = words[r], words[l]
+	}
+	return words
 }
 
-func firstWords(s string, n int) []string {
-	w := splitWords(s)
-	if len(w) > n {
-		w = w[:n]
+// wordsForward collecte jusqu'à n mots à partir de from (inclus).
+func wordsForward(runes []rune, from, n int) []string {
+	if n <= 0 {
+		return nil
 	}
-	return w
+	words := make([]string, 0, n)
+	i := from
+	for i < len(runes) && len(words) < n {
+		for i < len(runes) && !isWordRune(runes[i]) {
+			i++
+		}
+		start := i
+		for i < len(runes) && isWordRune(runes[i]) {
+			i++
+		}
+		if i > start {
+			words = append(words, string(runes[start:i]))
+		}
+	}
+	return words
 }
 
 func containsAny(window string, words []string) bool {
