@@ -42,7 +42,7 @@ func Load(t *testing.T) []Case {
 	if err != nil {
 		t.Fatalf("ouverture oracle.jsonl : %v", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	var cases []Case
 	sc := bufio.NewScanner(f)

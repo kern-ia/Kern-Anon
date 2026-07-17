@@ -127,7 +127,7 @@ func loadCases() []oracleCase {
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	var cases []oracleCase
 	sc := bufio.NewScanner(f)
 	for sc.Scan() {
@@ -148,7 +148,7 @@ func waitHealthy(url string) error {
 	for i := 0; i < 30; i++ {
 		resp, err := http.Get(url + "/health")
 		if err == nil && resp.StatusCode == http.StatusOK {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			return nil
 		}
 		lastErr = err
@@ -163,7 +163,7 @@ func analyzePython(url, text, lang string) []pyResult {
 	if err != nil {
 		panic(err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	var results []pyResult
 	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
 		panic(err)
