@@ -1,5 +1,17 @@
 # Rétro continue — presidigo-go
 
+## 2026-07-17 — Rétro finale v0.1.0
+**Ce qui a marché** : le corpus oracle (tests Python → jsonl partagé) a porté
+tout le TDD ; l'extraction AST/sed des patterns Python a évité les typos ; le
+harness Go-vs-Python a immédiatement attrapé la seule vraie lacune de portage
+(invalidation SSN) → 100 % d'accord final ; les 3 pièges RE2 prévus au plan
+sont exactement ceux rencontrés.
+**Ce qui a coûté** : versions onnxruntime ↔ binding (2 essais), modèle cased
+lowercasé (zéro entité sans erreur), encodage cp1252 des .ps1.
+**À faire ensuite** : locales UE (portage AST déjà outillé), lemmatisation
+dans contextaware quand le NLP fournira les lemmes, PHONE_NUMBER via
+nyaruka/phonenumbers, publier le module sur GitHub.
+
 Noter ici ce qui a fonctionné ou non, AU MOMENT où ça mord. Dater chaque entrée.
 
 ## 2026-07-16 — bootstrap

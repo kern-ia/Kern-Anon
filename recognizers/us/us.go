@@ -48,7 +48,44 @@ func NewSSN(language string) *recognizer.PatternRecognizer {
 		{Name: "SSN3 (very weak)", Regex: regexp.MustCompile(`\b(([0-9]{3})-([0-9]{2})-([0-9]{4}))\b`), Score: 0.05},
 		{Name: "SSN4 (very weak)", Regex: regexp.MustCompile(`\b[0-9]{9}\b`), Score: 0.05},
 		{Name: "SSN5 (medium)", Regex: regexp.MustCompile(`\b([0-9]{3})[- .]([0-9]{2})[- .]([0-9]{4})\b`), Score: 0.5},
-	}, recognizer.WithContextWords("social", "security", "ssn", "ssns", "ssid"))
+	},
+		recognizer.WithContextWords("social", "security", "ssn", "ssns", "ssid"),
+		recognizer.WithValidate(ssnValidate))
+}
+
+// ssnValidate porte l'invalidate_result du fork : rejet des délimiteurs
+// mélangés, chiffres tous identiques, groupes à zéros, zones 000/666 et
+// SSN canoniques publiés. Sinon neutre (score du pattern conservé).
+func ssnValidate(match string) *bool {
+	reject := false
+	delims := map[rune]bool{}
+	var digits []byte
+	for _, c := range match {
+		switch {
+		case c == '.' || c == '-' || c == ' ':
+			delims[c] = true
+		case c >= '0' && c <= '9':
+			digits = append(digits, byte(c))
+		}
+	}
+	d := string(digits)
+	switch {
+	case len(delims) > 1: // délimiteurs mélangés
+		reject = true
+	case len(d) > 0 && strings.Count(d, d[:1]) == len(d): // tous identiques
+		reject = true
+	case len(d) == 9 && (d[3:5] == "00" || d[5:] == "0000"): // groupes à zéros
+		reject = true
+	case len(d) >= 3 && (d[:3] == "000" || d[:3] == "666"): // zone jamais émise
+		reject = true
+	case d == "123456789" || d == "987654320" || d == "078051120": // exemples publiés
+		reject = true
+	}
+	if reject {
+		invalid := false
+		return &invalid
+	}
+	return nil
 }
 
 // NewITIN détecte les Individual Taxpayer Identification Numbers (US_ITIN).
