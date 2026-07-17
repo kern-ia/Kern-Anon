@@ -5,11 +5,21 @@ package nlp
 
 import "context"
 
+// NerEntity est une entité nommée produite par le moteur NLP,
+// offsets en runes.
+type NerEntity struct {
+	Label string // "PER", "LOC", "ORG", "MISC", …
+	Start int
+	End   int
+	Score float64
+}
+
 // Artifacts porte les résultats du traitement NLP d'un texte
 // (tokens, lemmes, entités NER). Nil quand aucun moteur n'est configuré.
 type Artifacts struct {
-	Tokens []string
-	Lemmas []string
+	Tokens      []string
+	Lemmas      []string
+	NerEntities []NerEntity
 }
 
 // Engine est le moteur NLP pluggable (équivalent du NlpEngine du fork).

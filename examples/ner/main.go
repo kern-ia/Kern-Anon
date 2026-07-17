@@ -1,0 +1,43 @@
+//go:build onnx
+
+// Exemple NER : pipeline complet avec le moteur ONNX (build tag onnx).
+//
+//	./scripts/download-model.ps1   (ou .sh)
+//	ONNXRUNTIME_LIB=models/onnxruntime/onnxruntime.dll go run -tags onnx ./examples/ner
+package main
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/YoLaub/presidigo-go/analyzer"
+	"github.com/YoLaub/presidigo-go/nlp/onnx"
+	"github.com/YoLaub/presidigo-go/recognizers/ner"
+	"github.com/YoLaub/presidigo-go/registry"
+)
+
+func main() {
+	reg := registry.Default("en")
+	reg.Add(ner.New("en"))
+
+	eng, err := analyzer.New(
+		analyzer.WithRegistry(reg),
+		analyzer.WithNlpEngine(onnx.New("models/bert-ner")),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	text := "My name is John Smith, I work at Microsoft in Seattle. " +
+		"My card is 4012-8888-8888-1881 and my email is john@example.org."
+
+	results, err := eng.Analyze(context.Background(), text, analyzer.MinScore(0.4))
+	if err != nil {
+		panic(err)
+	}
+	for _, res := range results {
+		extrait := string([]rune(text)[res.Start:res.End])
+		fmt.Printf("%-13s [%3d:%3d] score=%.2f → %q\n",
+			res.EntityType, res.Start, res.End, res.Score, extrait)
+	}
+}
