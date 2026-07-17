@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/YoLaub/presidigo-go/pii"
+	"github.com/YoLaub/PresidioGo/pii"
 )
 
 // Item décrit une substitution effectuée : offsets (en runes) DANS LE TEXTE

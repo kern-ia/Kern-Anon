@@ -4,9 +4,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
-	"github.com/YoLaub/presidigo-go/registry"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
+	"github.com/YoLaub/PresidioGo/registry"
 )
 
 func fake(t *testing.T, name, entity, lang string) *recognizer.PatternRecognizer {

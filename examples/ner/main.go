@@ -11,10 +11,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/YoLaub/presidigo-go/analyzer"
-	"github.com/YoLaub/presidigo-go/nlp/onnx"
-	"github.com/YoLaub/presidigo-go/recognizers/ner"
-	"github.com/YoLaub/presidigo-go/registry"
+	"github.com/YoLaub/PresidioGo/analyzer"
+	"github.com/YoLaub/PresidioGo/nlp/onnx"
+	"github.com/YoLaub/PresidioGo/recognizers/ner"
+	"github.com/YoLaub/PresidioGo/registry"
 )
 
 func main() {

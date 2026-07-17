@@ -5,8 +5,8 @@ package recognizer
 import (
 	"context"
 
-	"github.com/YoLaub/presidigo-go/nlp"
-	"github.com/YoLaub/presidigo-go/pii"
+	"github.com/YoLaub/PresidioGo/nlp"
+	"github.com/YoLaub/PresidioGo/pii"
 )
 
 // Recognizer détecte des entités PII dans un texte.

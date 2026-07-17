@@ -3,7 +3,7 @@ package bertner_test
 import (
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/nlp/bertner"
+	"github.com/YoLaub/PresidioGo/nlp/bertner"
 )
 
 func mkTokens(n int) []bertner.Token {

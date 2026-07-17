@@ -20,8 +20,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/YoLaub/presidigo-go/analyzer"
-	"github.com/YoLaub/presidigo-go/registry"
+	"github.com/YoLaub/PresidioGo/analyzer"
+	"github.com/YoLaub/PresidioGo/registry"
 )
 
 // excluded : entités hors comparaison — NER (moteurs différents : spaCy vs

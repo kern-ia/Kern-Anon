@@ -3,7 +3,7 @@
 ## Contexte
 Bibliothèque Go de détection (**analyzer**) et d'anonymisation (**anonymizer**) de PII
 dans du texte. Refonte Go du cœur de Presidio, destinée à être importée comme module
-(`github.com/YoLaub/presidigo-go`) dans un projet Go. Périmètre v1 : texte seul.
+(`github.com/YoLaub/PresidioGo`) dans un projet Go. Périmètre v1 : texte seul.
 Plan de référence : `docs/PLAN.md`. Périmètre fonctionnel d'origine :
 `../presidigo/archi-output/INDEX.md`.
 

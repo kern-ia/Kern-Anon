@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/analyzer"
-	"github.com/YoLaub/presidigo-go/registry"
+	"github.com/YoLaub/PresidioGo/analyzer"
+	"github.com/YoLaub/PresidioGo/registry"
 )
 
 // benchDoc : document réaliste (~30 Ko) mêlant PII et texte accentué,

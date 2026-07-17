@@ -7,8 +7,8 @@ package ner
 import (
 	"context"
 
-	"github.com/YoLaub/presidigo-go/nlp"
-	"github.com/YoLaub/presidigo-go/pii"
+	"github.com/YoLaub/PresidioGo/nlp"
+	"github.com/YoLaub/PresidioGo/pii"
 )
 
 // DefaultMapping mappe les labels CoNLL du modèle vers les entités Presidio

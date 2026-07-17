@@ -20,8 +20,8 @@ import (
 
 	ort "github.com/yalue/onnxruntime_go"
 
-	"github.com/YoLaub/presidigo-go/nlp"
-	"github.com/YoLaub/presidigo-go/nlp/bertner"
+	"github.com/YoLaub/PresidioGo/nlp"
+	"github.com/YoLaub/PresidioGo/nlp/bertner"
 )
 
 // windowSize est la taille de fenêtre d'inférence (tokens, hors [CLS]/[SEP]).
