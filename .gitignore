@@ -5,8 +5,8 @@
 /bin/
 /dist/
 
-# Modèles ONNX (téléchargés, pas versionnés)
-/models/*.onnx
+# Modèles ONNX et runtime (téléchargés par scripts/download-model.*)
+/models/
 
 # IDE / OS
 .idea/

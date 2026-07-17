@@ -1,0 +1,37 @@
+{"id": "cc-valid-mastercard", "source": "presidio test_credit_card_recognizer.py", "language": "en", "text": "5555555555554444", "expected": [{"entity_type": "CREDIT_CARD", "start": 0, "end": 16, "min_score": 1.0}]}
+{"id": "cc-invalid-luhn", "source": "presidio test_credit_card_recognizer.py", "language": "en", "text": "my credit card number is 4012-8888-8888-1882", "expected": [], "forbid": ["CREDIT_CARD"]}
+{"id": "cc-valid-visa", "source": "presidio test_credit_card_recognizer.py", "language": "en", "text": "4012888888881881", "expected": [{"entity_type": "CREDIT_CARD", "start": 0, "end": 16, "min_score": 1.0}]}
+{"id": "cc-valid-dashes", "source": "presidio test_credit_card_recognizer.py", "language": "en", "text": "4012-8888-8888-1881", "expected": [{"entity_type": "CREDIT_CARD", "start": 0, "end": 19, "min_score": 1.0}]}
+{"id": "email-simple", "source": "presidio test_email_recognizer.py", "language": "en", "text": "my email address is info@presidio.site", "expected": [{"entity_type": "EMAIL_ADDRESS", "start": 20, "end": 38, "min_score": 0.5}]}
+{"id": "email-rune-offsets", "source": "presidigo-go (offsets runes : accents avant l'entité)", "language": "fr", "text": "Prénom : José — email : info@presidio.site", "expected": [{"entity_type": "EMAIL_ADDRESS", "start": 24, "end": 42, "min_score": 0.5}]}
+{"id": "iban-valid-gb", "source": "presidio test_iban_recognizer.py (exemple normatif)", "language": "en", "text": "my iban is GB29NWBK60161331926819", "expected": [{"entity_type": "IBAN_CODE", "start": 11, "end": 33, "min_score": 1.0}]}
+{"id": "iban-invalid-mod97", "source": "presidigo-go", "language": "en", "text": "my iban is GB29NWBK60161331926820", "expected": [], "forbid": ["IBAN_CODE"]}
+{"id": "ipv4-simple", "source": "presidio test_ip_recognizer.py", "language": "en", "text": "microsoft.com 192.168.0.1", "expected": [{"entity_type": "IP_ADDRESS", "start": 14, "end": 25, "min_score": 0.6}]}
+{"id": "ipv6-full", "source": "presidio test_ip_recognizer.py", "language": "en", "text": "2001:0db8:85a3:0000:0000:8a2e:0370:7334", "expected": [{"entity_type": "IP_ADDRESS", "start": 0, "end": 39, "min_score": 0.6}]}
+{"id": "ipv6-invalid", "source": "presidigo-go", "language": "en", "text": "gggg:0db8:85a3:0000:0000:8a2e:0370:7334 n'est pas une IP", "expected": [], "forbid": ["IP_ADDRESS"]}
+{"id": "url-standard", "source": "presidio test_url_recognizer.py", "language": "en", "text": "visit https://www.microsoft.com/fr-fr for details", "expected": [{"entity_type": "URL", "start": 6, "end": 37, "min_score": 0.6}]}
+{"id": "mac-colon", "source": "presidio test_mac_recognizer.py", "language": "en", "text": "device 00:1B:44:11:3A:B7 connected", "expected": [{"entity_type": "MAC_ADDRESS", "start": 7, "end": 24, "min_score": 0.6}]}
+{"id": "mac-mixed-separators-rejected", "source": "presidigo-go (le fork interdit les séparateurs mélangés via backreference)", "language": "en", "text": "device 00:1B-44:11-3A:B7 connected", "expected": [], "forbid": ["MAC_ADDRESS"]}
+{"id": "crypto-p2pkh-valid", "source": "presidio test_crypto_recognizer.py", "language": "en", "text": "wallet 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2", "expected": [{"entity_type": "CRYPTO", "start": 7, "end": 41, "min_score": 1.0}]}
+{"id": "crypto-invalid-checksum", "source": "presidigo-go", "language": "en", "text": "wallet 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN3", "expected": [], "forbid": ["CRYPTO"]}
+{"id": "empty-text", "source": "presidigo-go", "language": "en", "text": "", "expected": []}
+{"id": "us-ssn-medium", "source": "presidio test_us_ssn_recognizer.py", "language": "en", "text": "my ssn is 216-09-1234", "expected": [{"entity_type": "US_SSN", "start": 10, "end": 21, "min_score": 0.5}]}
+{"id": "us-ssn-canonique-invalide", "source": "presidio us_ssn invalidate_result (078-05-1120 = SSN Woolworth publié)", "language": "en", "text": "my ssn is 078-05-1120", "expected": [], "forbid": ["US_SSN"]}
+{"id": "us-ssn-delimiteurs-melanges", "source": "presidio us_ssn invalidate_result", "language": "en", "text": "my ssn is 216-09 1234", "expected": [], "forbid": ["US_SSN"]}
+{"id": "us-aba-valid", "source": "presidio test_aba_routing_recognizer.py (122105155 checksum OK)", "language": "en", "text": "routing 122105155", "expected": [{"entity_type": "ABA_ROUTING_NUMBER", "start": 8, "end": 17, "min_score": 1.0}]}
+{"id": "us-npi-valid", "source": "presidio test_us_npi_recognizer.py", "language": "en", "text": "npi 1234567893", "expected": [{"entity_type": "US_NPI", "start": 4, "end": 14, "min_score": 1.0}]}
+{"id": "us-npi-invalid-checksum", "source": "presidio test_us_npi_recognizer.py", "language": "en", "text": "npi 1234567890", "expected": [], "forbid": ["US_NPI"]}
+{"id": "us-itin-medium", "source": "presidio test_us_itin_recognizer.py", "language": "en", "text": "taxpayer id 912-98-7654", "expected": [{"entity_type": "US_ITIN", "start": 12, "end": 23, "min_score": 0.5}]}
+{"id": "us-mbi-dash", "source": "presidio test_us_mbi_recognizer.py (échantillon CMS)", "language": "en", "text": "medicare 1EG4-TE5-MK73", "expected": [{"entity_type": "US_MBI", "start": 9, "end": 22, "min_score": 0.5}]}
+{"id": "us-dea-valid", "source": "presidigo-go (checksum DEA calculée)", "language": "en", "text": "DEA AB1234563", "expected": [{"entity_type": "MEDICAL_LICENSE", "start": 4, "end": 13, "min_score": 1.0}]}
+{"id": "us-dea-invalid", "source": "presidigo-go", "language": "en", "text": "DEA AB1234564", "expected": [], "forbid": ["MEDICAL_LICENSE"]}
+{"id": "fr-nir-espaces", "source": "presidigo-go (clé 97 calculée, données synthétiques)", "language": "fr", "text": "numéro de sécu 1 85 05 78 006 084 91", "expected": [{"entity_type": "FR_NIR", "start": 15, "end": 36, "min_score": 1.0}]}
+{"id": "fr-nir-cle-invalide", "source": "presidigo-go", "language": "fr", "text": "numéro de sécu 1 85 05 78 006 084 92", "expected": [], "forbid": ["FR_NIR"]}
+{"id": "fr-nir-corse", "source": "presidigo-go (département 2A, clé via 2A→19)", "language": "fr", "text": "185052A00608435", "expected": [{"entity_type": "FR_NIR", "start": 0, "end": 15, "min_score": 1.0}]}
+{"id": "fr-siren-valide", "source": "presidigo-go (Luhn)", "language": "fr", "text": "siren 552100554", "expected": [{"entity_type": "FR_SIREN", "start": 6, "end": 15, "min_score": 1.0}]}
+{"id": "fr-siren-invalide", "source": "presidigo-go", "language": "fr", "text": "siren 552100555", "expected": [], "forbid": ["FR_SIREN"]}
+{"id": "fr-siret-valide", "source": "presidigo-go (Luhn 14 chiffres)", "language": "fr", "text": "siret 55210055400005", "expected": [{"entity_type": "FR_SIRET", "start": 6, "end": 20, "min_score": 1.0}]}
+{"id": "fr-plaque-siv", "source": "presidigo-go", "language": "fr", "text": "immatriculée AB-123-CD", "expected": [{"entity_type": "FR_LICENSE_PLATE", "start": 13, "end": 22, "min_score": 0.4}]}
+{"id": "fr-plaque-lettres-interdites", "source": "presidigo-go (I, O, U exclues du SIV)", "language": "fr", "text": "immatriculée IO-123-UU", "expected": [], "forbid": ["FR_LICENSE_PLATE"]}
+{"id": "fr-telephone-national", "source": "presidigo-go", "language": "fr", "text": "appelle le 06 01 02 03 04", "expected": [{"entity_type": "FR_PHONE_NUMBER", "start": 11, "end": 25, "min_score": 0.4}]}
+{"id": "fr-telephone-international", "source": "presidigo-go", "language": "fr", "text": "+33 6 01 02 03 04", "expected": [{"entity_type": "FR_PHONE_NUMBER", "start": 0, "end": 17, "min_score": 0.4}]}
