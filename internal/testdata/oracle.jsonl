@@ -15,7 +15,9 @@
 {"id": "crypto-p2pkh-valid", "source": "presidio test_crypto_recognizer.py", "language": "en", "text": "wallet 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2", "expected": [{"entity_type": "CRYPTO", "start": 7, "end": 41, "min_score": 1.0}]}
 {"id": "crypto-invalid-checksum", "source": "presidigo-go", "language": "en", "text": "wallet 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN3", "expected": [], "forbid": ["CRYPTO"]}
 {"id": "empty-text", "source": "presidigo-go", "language": "en", "text": "", "expected": []}
-{"id": "us-ssn-medium", "source": "presidio test_us_ssn_recognizer.py", "language": "en", "text": "my ssn is 078-05-1120", "expected": [{"entity_type": "US_SSN", "start": 10, "end": 21, "min_score": 0.5}]}
+{"id": "us-ssn-medium", "source": "presidio test_us_ssn_recognizer.py", "language": "en", "text": "my ssn is 216-09-1234", "expected": [{"entity_type": "US_SSN", "start": 10, "end": 21, "min_score": 0.5}]}
+{"id": "us-ssn-canonique-invalide", "source": "presidio us_ssn invalidate_result (078-05-1120 = SSN Woolworth publié)", "language": "en", "text": "my ssn is 078-05-1120", "expected": [], "forbid": ["US_SSN"]}
+{"id": "us-ssn-delimiteurs-melanges", "source": "presidio us_ssn invalidate_result", "language": "en", "text": "my ssn is 216-09 1234", "expected": [], "forbid": ["US_SSN"]}
 {"id": "us-aba-valid", "source": "presidio test_aba_routing_recognizer.py (122105155 checksum OK)", "language": "en", "text": "routing 122105155", "expected": [{"entity_type": "ABA_ROUTING_NUMBER", "start": 8, "end": 17, "min_score": 1.0}]}
 {"id": "us-npi-valid", "source": "presidio test_us_npi_recognizer.py", "language": "en", "text": "npi 1234567893", "expected": [{"entity_type": "US_NPI", "start": 4, "end": 14, "min_score": 1.0}]}
 {"id": "us-npi-invalid-checksum", "source": "presidio test_us_npi_recognizer.py", "language": "en", "text": "npi 1234567890", "expected": [], "forbid": ["US_NPI"]}
