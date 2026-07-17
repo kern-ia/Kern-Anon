@@ -5,9 +5,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/YoLaub/presidigo-go/analyzer"
-	"github.com/YoLaub/presidigo-go/anonymizer"
-	"github.com/YoLaub/presidigo-go/registry"
+	"github.com/YoLaub/PresidioGo/analyzer"
+	"github.com/YoLaub/PresidioGo/anonymizer"
+	"github.com/YoLaub/PresidioGo/registry"
 )
 
 func main() {

@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/nlp"
-	"github.com/YoLaub/presidigo-go/recognizers/ner"
+	"github.com/YoLaub/PresidioGo/nlp"
+	"github.com/YoLaub/PresidioGo/recognizers/ner"
 )
 
 func TestAnalyze_MappeLesLabelsVersLesEntitesPresidio(t *testing.T) {

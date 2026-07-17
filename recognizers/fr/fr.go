@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
-	"github.com/YoLaub/presidigo-go/recognizers/generic"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
+	"github.com/YoLaub/PresidioGo/recognizers/generic"
 )
 
 // All retourne les recognizers français (langue "fr").

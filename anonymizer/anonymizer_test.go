@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/anonymizer"
-	"github.com/YoLaub/presidigo-go/pii"
+	"github.com/YoLaub/PresidioGo/anonymizer"
+	"github.com/YoLaub/PresidioGo/pii"
 )
 
 func res(entity string, start, end int, score float64) pii.Result {

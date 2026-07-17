@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
 )
 
 // benchText : ~60 Ko de texte accentué (multi-bytes) truffé d'emails — le cas

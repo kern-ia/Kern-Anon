@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/contextaware"
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/PresidioGo/contextaware"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
 )
 
 func recWithContext(t *testing.T, score float64, words ...string) *recognizer.PatternRecognizer {

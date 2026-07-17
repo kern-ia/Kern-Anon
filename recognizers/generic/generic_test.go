@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/internal/oracletest"
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizers/generic"
+	"github.com/YoLaub/PresidioGo/internal/oracletest"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizers/generic"
 )
 
 // TestOracle exécute les recognizers génériques sur le corpus oracle partagé.

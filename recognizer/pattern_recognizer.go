@@ -5,8 +5,8 @@ import (
 	"errors"
 	"sort"
 
-	"github.com/YoLaub/presidigo-go/nlp"
-	"github.com/YoLaub/presidigo-go/pii"
+	"github.com/YoLaub/PresidioGo/nlp"
+	"github.com/YoLaub/PresidioGo/pii"
 )
 
 // PatternRecognizer détecte une entité via une liste de patterns regex,

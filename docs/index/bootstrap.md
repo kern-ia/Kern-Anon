@@ -4,7 +4,7 @@ feature: bootstrap
 branch: feature/bootstrap
 status: done
 files:
-  - go.mod (module github.com/YoLaub/presidigo-go, go 1.26)
+  - go.mod (module github.com/YoLaub/PresidioGo, go 1.26)
   - CLAUDE.md, README.md, LICENSE (MIT), .gitignore, .golangci.yml
   - .github/workflows/ci.yml (build + test -race + lint)
   - docs/PLAN.md (plan validé le 2026-07-16)
