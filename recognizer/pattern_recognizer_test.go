@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
 )
 
 func emailRecognizer(t *testing.T, opts ...recognizer.Option) *recognizer.PatternRecognizer {
@@ -64,7 +64,7 @@ func TestPatternRecognizer_TexteVide(t *testing.T) {
 
 func TestPatternRecognizer_ValidationRejette(t *testing.T) {
 	// Validate → false : le match est rejeté (ex. checksum Luhn KO).
-	reject := func(match string) *bool { v := false; return &v }
+	reject := func(_ string) *bool { v := false; return &v }
 	r := emailRecognizer(t, recognizer.WithValidate(reject))
 
 	results, err := r.Analyze(context.Background(), "mail: info@presidio.site", nil)
@@ -78,7 +78,7 @@ func TestPatternRecognizer_ValidationRejette(t *testing.T) {
 
 func TestPatternRecognizer_ValidationConfirme(t *testing.T) {
 	// Validate → true : le score monte au maximum.
-	confirm := func(match string) *bool { v := true; return &v }
+	confirm := func(_ string) *bool { v := true; return &v }
 	r := emailRecognizer(t, recognizer.WithValidate(confirm))
 
 	results, err := r.Analyze(context.Background(), "mail: info@presidio.site", nil)
@@ -95,7 +95,7 @@ func TestPatternRecognizer_ValidationConfirme(t *testing.T) {
 
 func TestPatternRecognizer_ValidationNeutre(t *testing.T) {
 	// Validate → nil : le score du pattern est conservé.
-	neutral := func(match string) *bool { return nil }
+	neutral := func(_ string) *bool { return nil }
 	r := emailRecognizer(t, recognizer.WithValidate(neutral))
 
 	results, err := r.Analyze(context.Background(), "mail: info@presidio.site", nil)

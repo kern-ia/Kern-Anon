@@ -9,11 +9,13 @@ import (
 	"fmt"
 	"slices"
 	"sort"
+	"sync"
 
-	"github.com/YoLaub/presidigo-go/contextaware"
-	"github.com/YoLaub/presidigo-go/nlp"
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/registry"
+	"github.com/YoLaub/PresidioGo/contextaware"
+	"github.com/YoLaub/PresidioGo/nlp"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
+	"github.com/YoLaub/PresidioGo/registry"
 )
 
 // Engine est le moteur d'analyse.
@@ -108,14 +110,27 @@ func (e *Engine) Analyze(ctx context.Context, text string, opts ...CallOption) (
 		}
 	}
 
+	// Les recognizers sont indépendants et thread-safe : fan-out en
+	// goroutines, résultats réassemblés dans l'ordre du registry
+	// (déterminisme conservé).
 	recognizers := e.registry.Get(cfg.language, cfg.entities...)
+	perRec := make([][]pii.Result, len(recognizers))
+	errs := make([]error, len(recognizers))
+	var wg sync.WaitGroup
+	for i, rec := range recognizers {
+		wg.Add(1)
+		go func(i int, rec recognizer.Recognizer) {
+			defer wg.Done()
+			perRec[i], errs[i] = rec.Analyze(ctx, text, artifacts)
+		}(i, rec)
+	}
+	wg.Wait()
 	var results []pii.Result
-	for _, rec := range recognizers {
-		found, err := rec.Analyze(ctx, text, artifacts)
-		if err != nil {
-			return nil, fmt.Errorf("analyzer: %s : %w", rec.Name(), err)
+	for i, rec := range recognizers {
+		if errs[i] != nil {
+			return nil, fmt.Errorf("analyzer: %s : %w", rec.Name(), errs[i])
 		}
-		results = append(results, found...)
+		results = append(results, perRec[i]...)
 	}
 
 	if len(cfg.entities) > 0 {

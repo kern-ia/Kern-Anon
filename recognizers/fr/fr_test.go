@@ -3,8 +3,8 @@ package fr_test
 import (
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/internal/oracletest"
-	"github.com/YoLaub/presidigo-go/recognizers/fr"
+	"github.com/YoLaub/PresidioGo/internal/oracletest"
+	"github.com/YoLaub/PresidioGo/recognizers/fr"
 )
 
 func TestOracle(t *testing.T) {
@@ -20,11 +20,11 @@ func TestNirKey(t *testing.T) {
 		in   string
 		want bool
 	}{
-		{"185057800608491", true},   // clé 91 calculée
-		{"185057800608492", false},  // clé fausse
-		{"185052A00608435", true},   // Corse 2A → 19
-		{"1850578006084", false},    // trop court
-		{"2850578006084XX", false},  // clé non numérique
+		{"185057800608491", true},  // clé 91 calculée
+		{"185057800608492", false}, // clé fausse
+		{"185052A00608435", true},  // Corse 2A → 19
+		{"1850578006084", false},   // trop court
+		{"2850578006084XX", false}, // clé non numérique
 	} {
 		if got := fr.NirKey(tc.in); got != tc.want {
 			t.Errorf("NirKey(%q) = %v, attendu %v", tc.in, got, tc.want)

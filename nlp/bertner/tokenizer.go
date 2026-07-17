@@ -58,8 +58,9 @@ func (t *Tokenizer) ID(token string) int {
 
 // Tokenize découpe le texte en tokens WordPiece avec offsets en runes.
 func (t *Tokenizer) Tokenize(text string) []Token {
-	var tokens []Token
-	for _, w := range basicSplit(text) {
+	words := basicSplit(text)
+	tokens := make([]Token, 0, len(words))
+	for _, w := range words {
 		tokens = append(tokens, t.wordpiece(w)...)
 	}
 	return tokens
@@ -176,6 +177,15 @@ func Aggregate(tokens []Token, labels []TokenLabel) []Entity {
 			break
 		}
 		label := labels[i]
+		// Sous-mot de continuation d'une entité ouverte : le mot reste
+		// entier même si le modèle étiquette O ce fragment.
+		if cur != nil && strings.HasPrefix(tok.Text, "##") && tok.Start == cur.End {
+			cur.End = tok.End
+			if strings.HasPrefix(label.Label, "I-") && label.Label[2:] == cur.Label {
+				scores = append(scores, label.Score)
+			}
+			continue
+		}
 		switch {
 		case label.Label == "O" || label.Label == "":
 			flush()

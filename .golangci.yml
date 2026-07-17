@@ -1,9 +1,10 @@
 version: "2"
 
+# misspell est désactivé : il suppose des commentaires en anglais et signale
+# le français du projet (« contextuel », « collecte »…) comme fautes.
 linters:
   default: standard
   enable:
-    - misspell
     - revive
     - gocritic
     - prealloc

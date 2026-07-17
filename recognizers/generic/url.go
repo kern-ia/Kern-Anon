@@ -3,8 +3,8 @@ package generic
 import (
 	"regexp"
 
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
 )
 
 // baseURLRegex est extrait tel quel du fork Python (url_recognizer.py,

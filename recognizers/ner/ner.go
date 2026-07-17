@@ -7,8 +7,8 @@ package ner
 import (
 	"context"
 
-	"github.com/YoLaub/presidigo-go/nlp"
-	"github.com/YoLaub/presidigo-go/pii"
+	"github.com/YoLaub/PresidioGo/nlp"
+	"github.com/YoLaub/PresidioGo/pii"
 )
 
 // DefaultMapping mappe les labels CoNLL du modèle vers les entités Presidio
@@ -45,9 +45,14 @@ func NewWithMapping(language string, mapping map[string]string) *Recognizer {
 	return &Recognizer{language: language, mapping: mapping, entities: entities}
 }
 
-func (r *Recognizer) Name() string                { return "NerRecognizer" }
+// Name retourne le nom du recognizer.
+func (r *Recognizer) Name() string { return "NerRecognizer" }
+
+// SupportedEntities retourne les entités du mapping.
 func (r *Recognizer) SupportedEntities() []string { return r.entities }
-func (r *Recognizer) Language() string            { return r.language }
+
+// Language retourne la langue supportée.
+func (r *Recognizer) Language() string { return r.language }
 
 // Analyze convertit les entités NER des artifacts en résultats PII.
 // Les labels absents du mapping sont ignorés.

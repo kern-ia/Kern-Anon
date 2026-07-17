@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
 )
 
 // La regex Python commence par le lookahead négatif (?!1\d{12}(?!\d))
@@ -25,7 +25,7 @@ func NewCreditCard(language string) *recognizer.PatternRecognizer {
 		recognizer.WithContextWords("credit", "card", "visa", "mastercard", "cc ", "amex", "discover", "jcb", "diners", "maestro", "instapayment"),
 		recognizer.WithValidate(func(match string) *bool {
 			sanitized := strings.NewReplacer("-", "", " ", "").Replace(match)
-			ok := !(len(sanitized) == 13 && sanitized[0] == '1') && Luhn(sanitized)
+			ok := (len(sanitized) != 13 || sanitized[0] != '1') && Luhn(sanitized)
 			return &ok
 		}))
 }

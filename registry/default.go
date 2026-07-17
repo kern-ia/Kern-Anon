@@ -1,9 +1,9 @@
 package registry
 
 import (
-	"github.com/YoLaub/presidigo-go/recognizers/fr"
-	"github.com/YoLaub/presidigo-go/recognizers/generic"
-	"github.com/YoLaub/presidigo-go/recognizers/us"
+	"github.com/YoLaub/PresidioGo/recognizers/fr"
+	"github.com/YoLaub/PresidioGo/recognizers/generic"
+	"github.com/YoLaub/PresidioGo/recognizers/us"
 )
 
 // Default retourne un registry pré-rempli pour les langues demandées :

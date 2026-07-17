@@ -13,8 +13,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/YoLaub/presidigo-go/pii"
-	"github.com/YoLaub/presidigo-go/recognizer"
+	"github.com/YoLaub/PresidioGo/pii"
+	"github.com/YoLaub/PresidioGo/recognizer"
 )
 
 // Expected est une entité attendue d'un cas oracle.
@@ -42,7 +42,7 @@ func Load(t *testing.T) []Case {
 	if err != nil {
 		t.Fatalf("ouverture oracle.jsonl : %v", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	var cases []Case
 	sc := bufio.NewScanner(f)
