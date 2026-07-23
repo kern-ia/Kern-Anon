@@ -5,23 +5,25 @@ branch: feature/core-types
 status: done
 files:
   - pii/types.go (Result, Pattern, Explanation, MaxScore)
-  - nlp/nlp.go (Artifacts minimal — l'interface moteur viendra avec nlp-onnx)
-  - recognizer/recognizer.go (interface Recognizer, ValidateFunc)
-  - recognizer/pattern_recognizer.go (NewPattern, WithValidate, offsets runes)
-  - registry/registry.go (Add/Remove/Get(langue, entités...)/SupportedEntities, RWMutex)
-  - examples/basic/main.go (E2E réel)
+  - nlp/nlp.go (minimal Artifacts — the engine interface arrives with nlp-onnx)
+  - recognizer/recognizer.go (Recognizer interface, ValidateFunc)
+  - recognizer/pattern_recognizer.go (NewPattern, WithValidate, rune offsets)
+  - registry/registry.go (Add/Remove/Get(language, entities...)/SupportedEntities, RWMutex)
+  - examples/basic/main.go (real E2E)
 tests:
-  - recognizer/pattern_recognizer_test.go (100 % couverture)
-  - registry/registry_test.go (100 % couverture)
+  - recognizer/pattern_recognizer_test.go (100% coverage)
+  - registry/registry_test.go (100% coverage)
 decisions:
-  - "2026-07-16 : ValidateFunc retourne *bool — nil neutre, true→MaxScore, false→rejet (calqué sur validate/invalidate_result du fork)"
-  - "2026-07-16 : conversion bytes→runes via utf8.RuneCountInString au point de match (pas de table précalculée tant que non mesuré)"
-  - "2026-07-16 : Registry protégé par RWMutex — setup mutable, Analyze concurrent"
+  - "2026-07-16: ValidateFunc returns *bool — nil neutral, true→MaxScore, false→rejected (modeled on the fork's validate/invalidate_result)"
+  - "2026-07-16: bytes→runes conversion via utf8.RuneCountInString at the match point (no precomputed table until measured)"
+  - "2026-07-16: Registry protected by RWMutex — mutable setup, concurrent Analyze"
 ---
 
-**Quoi** : le socle — types partagés, interface Recognizer, PatternRecognizer
-(regex + validation checksum), Registry filtrant par langue/entité. Offsets runes
-vérifiés sur texte accentué (cas oracle email-rune-offsets).
+**What**: the foundation — shared types, Recognizer interface,
+PatternRecognizer (regex + checksum validation), Registry filtering by
+language/entity. Rune offsets verified on accented text (email-rune-offsets
+oracle case).
 
-**Pièges** :
-- `go test -race` exige cgo/gcc, absent sous Windows par défaut → -race délégué à la CI Linux.
+**Pitfalls**:
+- `go test -race` requires cgo/gcc, absent on Windows by default → -race
+  delegated to Linux CI.

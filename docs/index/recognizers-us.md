@@ -4,23 +4,24 @@ feature: recognizers-us
 branch: feature/recognizers-us
 status: done
 files:
-  - recognizers/us/us.go (9 recognizers, checksums ABA/NPI/DEA exportés)
-  - internal/oracletest/oracletest.go (runner oracle partagé, filtré par entités supportées)
-  - internal/testdata/oracle.jsonl (+8 cas US → 25)
+  - recognizers/us/us.go (9 recognizers, exported ABA/NPI/DEA checksums)
+  - internal/oracletest/oracletest.go (shared oracle runner, filtered by supported entities)
+  - internal/testdata/oracle.jsonl (+8 US cases → 25)
 tests:
-  - recognizers/us/us_test.go (oracle + unitaires checksums, 86 %)
+  - recognizers/us/us_test.go (oracle + checksum unit tests, 86%)
 decisions:
-  - "2026-07-17 : patterns extraits du fork par AST Python (pas de retranscription manuelle)"
-  - "2026-07-17 : bug du fork conservé tel quel dans le permis (« A-Z]{2} » sans crochet) pour l'iso-comportement — documenté dans le code"
-  - "2026-07-17 : NPI = Luhn(80840+npi) + rejet des corps dégénérés (invalidate du fork)"
-  - "2026-07-17 : runner oracle factorisé dans internal/oracletest — chaque locale n'évalue que ses entités"
+  - "2026-07-17: patterns extracted from the fork via Python AST (no manual retranscription)"
+  - "2026-07-17: the fork's driver-license bug kept as-is (\"A-Z]{2}\" missing a bracket) for iso-behavior — documented in the code"
+  - "2026-07-17: NPI = Luhn(80840+npi) + rejection of degenerate bodies (fork's invalidate)"
+  - "2026-07-17: oracle runner factored into internal/oracletest — each locale only evaluates its own entities"
 ---
 
-**Quoi** : les 9 recognizers US du fork — US_SSN, US_ITIN, US_PASSPORT,
-US_DRIVER_LICENSE, US_BANK_NUMBER, ABA_ROUTING_NUMBER (somme 3-7-1),
-US_NPI (Luhn préfixé 80840), US_MBI (charset CMS), MEDICAL_LICENSE (DEA).
+**What**: the fork's 9 US recognizers — US_SSN, US_ITIN, US_PASSPORT,
+US_DRIVER_LICENSE, US_BANK_NUMBER, ABA_ROUTING_NUMBER (3-7-1 weighted sum),
+US_NPI (Luhn prefixed with 80840), US_MBI (CMS charset), MEDICAL_LICENSE
+(DEA).
 
-**Pièges** :
-- Aucune regex non-RE2 côté US : portage direct.
-- La validation DEA du fork saute les 2 lettres puis pondère ×2 les positions
-  paires — vérifiée par calcul manuel (AB1234563 → 33 → 3).
+**Pitfalls**:
+- No non-RE2 regex on the US side: direct port.
+- The fork's DEA validation skips the 2 letters then weights even positions
+  ×2 — verified by manual calculation (AB1234563 → 33 → 3).

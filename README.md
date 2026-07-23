@@ -1,9 +1,9 @@
 # PresidioGo
 
-Bibliothèque Go de **détection** (analyzer) et d'**anonymisation** (anonymizer) de
-données personnelles (PII) dans du texte. Refonte Go idiomatique du cœur de
-[Presidio](https://github.com/data-privacy-stack/presidio) (MIT), pensée pour être
-importée comme module dans un projet Go — pas comme un microservice à déployer.
+Go library for **detecting** (analyzer) and **anonymizing** (anonymizer) personal
+data (PII) in text. An idiomatic Go rewrite of the core of
+[Presidio](https://github.com/data-privacy-stack/presidio) (MIT), designed to be
+imported as a module into a Go project — not deployed as a microservice.
 
 ```go
 eng, _ := analyzer.New(analyzer.WithRegistry(registry.Default("fr")))
@@ -14,64 +14,61 @@ out, _ := anonymizer.New().Anonymize(text, results, map[string]anonymizer.Operat
 })
 ```
 
-## Ce que fait PresidioGo
+## What PresidioGo does
 
-Le pipeline complet tient en deux moteurs :
+The full pipeline fits into two engines:
 
-1. **Analyzer** — parcourt le texte avec des *recognizers* (regex + validation par
-   checksum, et NER optionnel) enregistrés par langue dans un *registry*. Chaque
-   résultat porte un type d'entité, une position `[Start:End]` **en runes** (sûre
-   avec accents et emoji), un score et une explication. Un *boost contextuel*
-   augmente le score quand un mot de contexte (« iban », « carte », « ssn »…)
-   précède l'entité ; un seuil `MinScore` filtre le bruit.
-2. **Anonymizer** — remplace les spans détectés selon un opérateur choisi par
-   entité : `Replace`, `Redact`, `Mask`, `Hash`, `Keep`, `Custom`, ou
-   `Encrypt`/`Decrypt` (AES-GCM, avec `Deanonymize` pour le round-trip). Les
-   chevauchements sont résolus avant substitution : l'entité au meilleur score gagne.
+1. **Analyzer** — scans text with *recognizers* (regex + checksum validation, plus
+   optional NER) registered per language in a *registry*. Each result carries an
+   entity type, a `[Start:End]` position **in runes** (safe with accents and
+   emoji), a score, and an explanation. A *context boost* increases the score
+   when a context word ("iban", "card", "ssn"…) precedes the entity; a
+   `MinScore` threshold filters out noise.
+2. **Anonymizer** — replaces detected spans according to an operator chosen per
+   entity: `Replace`, `Redact`, `Mask`, `Hash`, `Keep`, `Custom`, or
+   `Encrypt`/`Decrypt` (AES-GCM, with `Deanonymize` for round-trips). Overlaps
+   are resolved before substitution: the entity with the highest score wins.
 
-Un match regex peut être **validé** (checksum OK → score maximal), **invalidé**
-(checksum KO → rejeté) ou laissé au score du pattern — exactement la sémantique
-de Presidio.
+A regex match can be **validated** (checksum OK → maximum score), **invalidated**
+(checksum KO → rejected), or left at the pattern's score — exactly Presidio's
+semantics.
 
-### Entités supportées
+### Supported entities
 
-| Groupe | Entités |
+| Group | Entities |
 |---|---|
-| Génériques | `CREDIT_CARD` (Luhn), `EMAIL_ADDRESS`, `IBAN_CODE` (mod-97), `IP_ADDRESS` (v4/v6), `URL`, `MAC_ADDRESS`, `CRYPTO` (base58check, bech32) |
-| États-Unis | `US_SSN`, `US_ITIN`, `US_PASSPORT`, `US_DRIVER_LICENSE`, `US_BANK_NUMBER`, `ABA_ROUTING_NUMBER`, `US_NPI` (Luhn), `US_MBI`, `MEDICAL_LICENSE` (DEA) |
-| France | `FR_NIR` (clé 97, Corse incluse), `FR_SIREN`, `FR_SIRET` (Luhn), `FR_LICENSE_PLATE` (SIV), `FR_PHONE_NUMBER` |
+| Generic | `CREDIT_CARD` (Luhn), `EMAIL_ADDRESS`, `IBAN_CODE` (mod-97), `IP_ADDRESS` (v4/v6), `URL`, `MAC_ADDRESS`, `CRYPTO` (base58check, bech32) |
+| United States | `US_SSN`, `US_ITIN`, `US_PASSPORT`, `US_DRIVER_LICENSE`, `US_BANK_NUMBER`, `ABA_ROUTING_NUMBER`, `US_NPI` (Luhn), `US_MBI`, `MEDICAL_LICENSE` (DEA) |
+| France | `FR_NIR` (key 97, including Corsica), `FR_SIREN`, `FR_SIRET` (Luhn), `FR_LICENSE_PLATE` (SIV), `FR_PHONE_NUMBER` |
 | NER (opt-in) | `PERSON`, `LOCATION`, `ORGANIZATION`, `NRP` via BERT-NER (ONNX) |
 
-`registry.Default("en", "fr")` assemble génériques + recognizers de chaque langue
-demandée. Ajouter un recognizer maison = implémenter une petite interface et
-l'enregistrer.
+`registry.Default("en", "fr")` assembles generics + recognizers for each
+requested language. Adding a custom recognizer means implementing a small
+interface and registering it.
 
-## Pourquoi un portage Go ?
+## Why a Go port?
 
-Presidio est une excellente référence, mais c'est un **service Python** : pour
-l'utiliser depuis un backend Go il faut déployer un conteneur, gérer un runtime
-Python + spaCy, et payer un aller-retour HTTP par analyse. PresidioGo inverse
-le modèle :
+Presidio is an excellent reference, but it's a **Python service**: using it from
+a Go backend means deploying a container, running a Python + spaCy runtime, and
+paying for an HTTP round-trip per analysis. PresidioGo flips the model:
 
-- **Une bibliothèque, pas un service.** `go get`, un import, zéro
-  infrastructure. L'analyse se fait dans le processus, sans latence réseau ni
-  sérialisation.
-- **100 % Go pur par défaut.** Sans le tag `onnx`, aucune dépendance cgo ni
-  binaire externe : la lib se cross-compile et s'embarque dans un binaire
-  statique unique (CLI, Lambda, sidecar…).
-- **Rapide et sobre.** Regex RE2 en temps linéaire garanti, recognizers exécutés
-  en parallèle (goroutines), fenêtre contextuelle bornée. Mesuré sur un document
-  de 30 Ko avec les 28 recognizers en+fr : **13,3 ms et 3,8 Mo alloués par
-  analyse** (contre 550 ms / 534 Mo avant optimisation — ×41 en vitesse, ÷139
-  en mémoire).
-- **Fidèle à l'original.** Les patterns et règles de validation sont extraits du
-  code Python (par AST, pas retranscrits à la main) et un corpus oracle
-  (`internal/testdata/oracle.jsonl`) issu des tests de Presidio verrouille la
-  non-régression. Le harness E2E compare span par span avec le
-  presidio-analyzer Python : **100 % d'accord** sur les entités communes.
-- **NER maîtrisé.** Là où Presidio embarque spaCy, PresidioGo propose un NER
-  opt-in : tokenizer WordPiece et agrégation BIO en pur Go, inférence
-  BERT-NER via ONNX Runtime uniquement si vous activez le tag de build.
+- **A library, not a service.** `go get`, one import, zero infrastructure.
+  Analysis happens in-process, with no network latency or serialization.
+- **100% pure Go by default.** Without the `onnx` tag, there's no cgo dependency
+  or external binary: the library cross-compiles and embeds into a single
+  static binary (CLI, Lambda, sidecar…).
+- **Fast and lean.** RE2 regex with guaranteed linear time, recognizers run in
+  parallel (goroutines), bounded context window. Measured on a 30 KB document
+  with all 28 en+fr recognizers: **13.3 ms and 3.8 MB allocated per analysis**
+  (vs. 550 ms / 534 MB before optimization — ×41 in speed, ÷139 in memory).
+- **Faithful to the original.** Patterns and validation rules are extracted
+  from the Python code (via AST, not hand-transcribed), and an oracle corpus
+  (`internal/testdata/oracle.jsonl`) drawn from Presidio's tests locks in
+  non-regression. The E2E harness compares span by span against the Python
+  presidio-analyzer: **100% agreement** on shared entities.
+- **NER under control.** Where Presidio bundles spaCy, PresidioGo offers
+  opt-in NER: a WordPiece tokenizer and BIO aggregation in pure Go, with
+  BERT-NER inference via ONNX Runtime only if you enable the build tag.
 
 ## Installation
 
@@ -81,9 +78,9 @@ Go ≥ 1.26.
 go get github.com/YoLaub/PresidioGo
 ```
 
-C'est tout pour l'usage par défaut (regex + checksums + contexte, pur Go).
+That's it for the default usage (regex + checksums + context, pure Go).
 
-### Démarrage rapide
+### Quick start
 
 ```go
 package main
@@ -118,40 +115,40 @@ func main() {
 }
 ```
 
-Exemple complet exécutable : `go run ./examples/basic`.
+Full runnable example: `go run ./examples/basic`.
 
-### NER (optionnel, tag `onnx`)
+### NER (optional, `onnx` tag)
 
-Le NER ajoute la détection de personnes, lieux et organisations via
-BERT-NER (modèle quantisé int8, ~110 Mo). Il nécessite cgo et ONNX Runtime :
+NER adds detection of people, places, and organizations via BERT-NER
+(int8-quantized model, ~110 MB). It requires cgo and ONNX Runtime:
 
 ```sh
-# 1. Télécharger le modèle + onnxruntime 1.26.x
-./scripts/download-model.sh        # ou scripts/download-model.ps1 sous Windows
+# 1. Download the model + onnxruntime 1.26.x
+./scripts/download-model.sh        # or scripts/download-model.ps1 on Windows
 
-# 2. Indiquer la bibliothèque ONNX Runtime
-export ONNXRUNTIME_LIB=/chemin/vers/libonnxruntime.so
+# 2. Point to the ONNX Runtime library
+export ONNXRUNTIME_LIB=/path/to/libonnxruntime.so
 
-# 3. Compiler avec le tag
+# 3. Build with the tag
 go build -tags onnx ./...
 go run -tags onnx ./examples/ner
 ```
 
-Sans le tag, ces packages sont simplement absents du build : rien à installer,
-rien à configurer.
+Without the tag, these packages are simply absent from the build: nothing to
+install, nothing to configure.
 
-## Développement
+## Development
 
 ```sh
-go test ./...          # tests (TDD, corpus oracle)
+go test ./...          # tests (TDD, oracle corpus)
 golangci-lint run      # lint
-go run ./internal/oracleharness   # E2E vs presidio-analyzer Python (Docker, port 5002)
+go run ./internal/oracleharness   # E2E vs Python presidio-analyzer (Docker, port 5002)
 ```
 
-Statut : v0.2 — pipeline complet (analyzer, anonymizer, 21 recognizers en/fr,
-NER ONNX, harness oracle). Feuille de route : `docs/PLAN.md`, fiches par
-feature : `docs/index/`.
+Status: v0.2 — full pipeline (analyzer, anonymizer, 21 en/fr recognizers,
+ONNX NER, oracle harness). Roadmap: `docs/PLAN.md`, per-feature notes:
+`docs/index/`.
 
-## Licence
+## License
 
-MIT — dérivé de l'architecture de Microsoft Presidio (MIT).
+MIT — derived from the architecture of Microsoft Presidio (MIT).
