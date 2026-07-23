@@ -5,8 +5,17 @@ import (
 	"testing"
 
 	"github.com/YoLaub/PresidioGo/anonymizer"
+	"github.com/YoLaub/PresidioGo/internal/anonymizeoracle"
 	"github.com/YoLaub/PresidioGo/pii"
 )
+
+// TestAnonymize_OracleE2E rejoue le corpus internal/testdata/anonymize.jsonl
+// à travers le pipeline complet (analyzer.New + registry.Default +
+// anonymizer.New) : détection, résolution des chevauchements et
+// substitution, comparées au texte anonymisé attendu.
+func TestAnonymize_OracleE2E(t *testing.T) {
+	anonymizeoracle.Run(t)
+}
 
 func res(entity string, start, end int, score float64) pii.Result {
 	return pii.Result{EntityType: entity, Start: start, End: end, Score: score}
