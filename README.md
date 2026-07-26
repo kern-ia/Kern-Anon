@@ -137,6 +137,60 @@ go run -tags onnx ./examples/ner
 Without the tag, these packages are simply absent from the build: nothing to
 install, nothing to configure.
 
+## Connection contracts
+
+`kern-anon` is the PII brick of the [Kern](../Kern-Orch/docs/ROADMAP.md) ecosystem. Unlike
+`kern-orch` and `kern-ui`, which talk over the wire, **this brick is consumed as a Go
+module** — it is a library, not a service, and deliberately so: anonymisation belongs
+inside the caller's process, not behind a network hop that would move PII around.
+
+> **Naming.** The Go module is `github.com/YoLaub/PresidioGo` while the roadmap calls the
+> brick `kern-anon`. The two names refer to the same thing. Renaming the module is a
+> breaking change for importers and has not been done.
+
+### Exposed — Go API
+
+Two engines, joined by one type. Everything else is internal and may change.
+
+```go
+import (
+    "github.com/YoLaub/PresidioGo/analyzer"
+    "github.com/YoLaub/PresidioGo/anonymizer"
+    "github.com/YoLaub/PresidioGo/registry"
+)
+
+eng, _ := analyzer.New(analyzer.WithRegistry(registry.Default("fr")))
+results, _ := eng.Analyze(ctx, text, analyzer.MinScore(0.4))
+
+out, _ := anonymizer.New().Anonymize(text, results, map[string]anonymizer.Operator{
+    "DEFAULT": anonymizer.Replace("<PII>"),
+})
+```
+
+| Contract | Signature | Notes |
+|---|---|---|
+| Detect | `analyzer.Engine.Analyze(ctx, text, ...CallOption) ([]pii.Result, error)` | Options: `Entities`, `Language`, `MinScore`. |
+| Anonymise | `anonymizer.Engine.Anonymize(text, []pii.Result, map[string]Operator) (*Result, error)` | Operator key `DEFAULT` covers unlisted entity types. |
+| Exchange type | `pii.Result` | Entity type, `[Start:End]` **in runes**, score, explanation. |
+| Operators | `Replace`, `Mask`, `Hash`, `Redact`, `Keep`, `Encrypt`, `Decrypt`, `Custom` | |
+
+**Guarantees a caller can rely on**
+
+- **Offsets are rune indices, not bytes.** Safe to slice around accents and emoji.
+- **No I/O, no network, no service to deploy.** The optional NER path loads a local ONNX
+  model behind the `onnx` build tag; without it the library is pure Go.
+- **The caller owns the text.** Nothing is logged, persisted or sent anywhere.
+
+### Consumed
+
+None. `kern-anon` depends on no other brick.
+
+### Integration status
+
+Not yet wired into any other brick. The roadmap marks it `externe · fait · integration to do`
+— `kern-orch` does not call it today, and no contract exists yet for where in a run PII
+scrubbing would happen.
+
 ## Development
 
 ```sh
