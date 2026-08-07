@@ -1,79 +1,95 @@
 # CONVENTIONS.md — kern-anon
 
-Autorité locale pour ce repo, comme annoncé par le [CONTRIBUTING.md](https://github.com/kern-ia/.github/blob/main/CONTRIBUTING.md)
-de l'organisation. Les règles communes à tous les repos `kern-ia` sont reprises ci-dessous ;
-la section « Spécificités » couvre ce qui n'appartient qu'à `kern-anon`.
+Local authority for this repo, as announced by the org-wide
+[CONTRIBUTING.md](https://github.com/kern-ia/.github/blob/main/CONTRIBUTING.md). The rules
+shared by all `kern-ia` repos are restated below; the "Specifics" sections cover what belongs
+only to `kern-anon`.
+
+## Language
+
+Code, identifiers, and comments are written in English — no exceptions. This applies to
+source files, docstrings, commit diffs, and test names. Internal documentation such as this
+file, `README.md`, or `CLAUDE.md` stays in whatever language the team works in day to day.
+
+> **Conflict to resolve**: `.golangci.yml` currently disables `misspell` with the comment
+> "misspell is disabled: it assumes English comments and flags the project's French
+> (`contextuel`, `collecte`...) as errors." That comment describes the codebase as it stands
+> today — a fair amount of existing comments are in French. Under this new rule that
+> justification no longer holds going forward: new comments must be English. Existing French
+> comments are legacy, not required to be rewritten in one pass, but `misspell` should
+> eventually be re-enabled once the backlog is cleared rather than left off indefinitely.
 
 ## Branches
 
-- `main` : branche stable, toujours déployable. Protégée — aucun push direct.
-- `dev` : branche d'intégration. Protégée — aucun push direct.
-- Branches de travail : `feature/<slug>`, `fix/<slug>`, `chore/<slug>`, `docs/<slug>`, `test/<slug>`.
-- Toute modification de `main` ou `dev` passe par une Pull Request. Le `CLAUDE.md` de ce repo
-  dit déjà « jamais de commit direct sur main/dev » — cette règle n'est aujourd'hui pas
-  appliquée techniquement (aucune protection de branche activée sur GitHub) et pas non plus
-  suivie via PR (0 PR ouverte à ce jour, tout part de merges locaux poussés directement).
-  À corriger : activer la protection de branche ET passer par PR même en solo.
-- Merge vers `dev` : `--no-ff` UNIQUEMENT si tests verts + E2E fait (règle déjà en vigueur,
-  à garder).
+- `main`: stable branch, always deployable. Protected — no direct pushes.
+- `dev`: integration branch. Protected — no direct pushes.
+- Working branches: `feature/<slug>`, `fix/<slug>`, `chore/<slug>`, `docs/<slug>`, `test/<slug>`.
+- Any change to `main` or `dev` goes through a Pull Request. This repo's `CLAUDE.md` already
+  says "never commit directly to main/dev" — that rule is not technically enforced today (no
+  branch protection enabled on GitHub) and is not followed via PR either (0 PRs opened so
+  far, everything comes from locally pushed merges). To fix: enable branch protection AND go
+  through a PR, even solo.
+- Merging into `dev`: `--no-ff` ONLY if tests are green and E2E is done (rule already in
+  force, keep it).
 
 ## Commits
 
-Conventional Commits : `feat:`, `fix:`, `test:`, `docs:`, `chore:`… (déjà respecté).
-Aucune signature d'outil (trailer `Co-Authored-By`, `Claude-Session` ou équivalent) dans les
-messages de commit — l'auteur du commit git suffit.
+Conventional Commits: `feat:`, `fix:`, `test:`, `docs:`, `chore:`... (already respected). No
+tool signature (`Co-Authored-By`, `Claude-Session`, or equivalent trailer) in commit
+messages — the git author is enough.
 
 ## Pull Requests
 
-- Un seul sujet par PR, liée à l'issue ou la RFC qu'elle résout.
-- Template PR hérité de `kern-ia/.github`.
-- Déclare l'impact semver.
-- Aucune donnée personnelle réelle — critique ici puisque le repo manipule justement de la PII
-  synthétique par construction.
+- One subject per PR, linked to the issue or RFC it resolves.
+- PR template inherited from `kern-ia/.github`.
+- States the semver impact.
+- No real personal data — critical here since the repo's whole purpose is handling synthetic
+  PII by construction.
 
-## Méthode (déjà en vigueur, à garder)
+## Method (already in force, keep it)
 
-- **TDD strict** : tests écrits avant le code, `go test ./...` vert avant tout commit.
-- Cas de test dérivés du corpus oracle (`internal/testdata/oracle.jsonl` / `anonymize.jsonl`).
-- Logique métier pure dans les packages domaine (`recognizer`, `analyzer`, `anonymizer`…),
-  aucune I/O dedans.
-- Offsets exprimés en **runes**, jamais en bytes — testé avec accents/emoji sur chaque
-  recognizer.
-- `nlp/onnx` reste opt-in derrière le build tag `onnx` (cgo) ; sans le tag, 100 % Go pur.
+- **Strict TDD**: tests written before the code, `go test ./...` green before every commit.
+- Test cases derived from the oracle corpus (`internal/testdata/oracle.jsonl` /
+  `anonymize.jsonl`).
+- Business logic stays pure in the domain packages (`recognizer`, `analyzer`, `anonymizer`...),
+  no I/O in them.
+- Offsets expressed in **runes**, never bytes — tested with accents/emoji on every recognizer.
+- `nlp/onnx` stays opt-in behind the `onnx` build tag (cgo); without the tag, 100% pure Go.
 
-## Style et lint
+## Style and lint
 
-`.golangci.yml` — `version: 2`, `linters.default: standard` + `revive`, `gocritic`, `prealloc`.
-`misspell` désactivé délibérément (commentaires en français). Toute extension future du set de
-linters doit porter le même commentaire justificatif que l'existant. `max-issues-per-linter: 0`,
-`max-same-issues: 0` — rien n'est masqué.
+`.golangci.yml` — `version: 2`, `linters.default: standard` + `revive`, `gocritic`,
+`prealloc`. `misspell` is currently disabled for the reason noted above under "Language" —
+revisit once new comments are consistently English. Any future extension of the linter set
+must carry the same kind of justifying comment as the existing ones.
+`max-issues-per-linter: 0`, `max-same-issues: 0` — nothing is hidden.
 
 ## Tests / CI
 
-- `go build ./...`, `go build -tags onnx ./...`, `go test -race -cover ./...`, lint
-  `golangci-lint`. Déjà en place dans `.github/workflows/ci.yml` — à garder comme référence
-  pour les autres repos Go de l'org qui n'ont pas encore de CI (`kern-orch`).
+- `go build ./...`, `go build -tags onnx ./...`, `go test -race -cover ./...`, lint via
+  `golangci-lint`. Already in place in `.github/workflows/ci.yml` — keep it as the reference
+  for other Go repos in the org that don't have CI yet (`kern-orch`).
 
-## Module Go
+## Go module
 
-> **Écart actuel — le plus visible de l'audit** : `go.mod` déclare encore
-> `module github.com/YoLaub/PresidioGo`, reliquat du nom d'avant le renommage en `kern-anon`.
-> Ce chemin ne correspond ni au nom du repo (`kern-anon`) ni à l'organisation (`kern-ia`).
-> À corriger : renommer le module (`gofmt -r`/`go mod edit -module` + mise à jour de tous les
-> imports internes), en coordination avec la décision d'organisation sur le chemin
-> `github.com/kern-ia/...` (voir rapport global).
+> **Current gap — the most visible one in the audit**: `go.mod` still declares
+> `module github.com/YoLaub/PresidioGo`, a leftover from the name before the rename to
+> `kern-anon`. This path matches neither the repo name (`kern-anon`) nor the organization
+> (`kern-ia`). To fix: rename the module (`go mod edit -module` + update all internal
+> imports), coordinated with the org-level decision on the `github.com/kern-ia/...` path (see
+> the global report).
 
 ## Documentation
 
-- `README.md`, `LICENSE` à la racine (les deux présents — bon exemple pour les autres repos).
-- `CLAUDE.md` — contexte agent.
-- Index OKF sous `docs/index/` : une fiche par feature terminée (entête YAML : id, feature,
-  branch, status, files, tests, decisions ; corps ≤ 15 lignes). Pièges rencontrés consignés
-  dans `docs/index/retro.md` au moment où ils surviennent.
-- Pas de `CHANGELOG.md` : notes de version dans le tag annoté (convention org).
+- `README.md`, `LICENSE` at the root (both present — a good example for the other repos).
+- `CLAUDE.md` — agent context.
+- OKF index under `docs/index/`: one sheet per completed feature (YAML header: id, feature,
+  branch, status, files, tests, decisions; body ≤ 15 lines). Pitfalls logged in
+  `docs/index/retro.md` at the moment they bite.
+- No `CHANGELOG.md`: release notes live in the annotated tag (org convention).
 
-## Sécurité / confidentialité
+## Security / privacy
 
-Voir `SECURITY.md` hérité de l'org. Les défauts de frontière de confidentialité (PII non
-pseudonymisée qui atteint un provider, contenu verbatim loggé) sont traités avec la même
-sévérité qu'une faille d'exécution de code — rappel explicite pour ce repo en particulier.
+See the org-inherited `SECURITY.md`. Privacy-boundary defects (un-pseudonymized PII reaching a
+provider, verbatim content being logged) are treated with the same severity as a
+code-execution bug — an explicit reminder for this repo in particular.
