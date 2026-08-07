@@ -1,5 +1,8 @@
 # CLAUDE.md — Conventions du repo presidigo-go
 
+> Conventions de développement (branches, commits, PR, lint, CI) : voir [`CONVENTIONS.md`](CONVENTIONS.md).
+> Ce fichier ne couvre que le contexte fonctionnel et la méthode propres à ce repo.
+
 ## Contexte
 Bibliothèque Go de détection (**analyzer**) et d'anonymisation (**anonymizer**) de PII
 dans du texte. Refonte Go du cœur de Presidio, destinée à être importée comme module
